@@ -1,0 +1,112 @@
+[
+  {
+    "flight_number": "AA-101",
+    "origin": "NYC",
+    "destination": "LAX",
+    "date": "2026-07-15",
+    "price": 350,
+    "airline": "American Airlines",
+    "departure_time": "08:00",
+    "arrival_time": "11:15"
+  },
+  {
+    "flight_number": "DL-242",
+    "origin": "NYC",
+    "destination": "LAX",
+    "date": "2026-07-15",
+    "price": 420,
+    "airline": "Delta Air Lines",
+    "departure_time": "14:30",
+    "arrival_time": "17:45"
+  },
+  {
+    "flight_number": "UA-789",
+    "origin": "NYC",
+    "destination": "LAX",
+    "date": "2026-07-15",
+    "price": 280,
+    "airline": "United Airlines",
+    "departure_time": "21:00",
+    "arrival_time": "00:15"
+  },
+  {
+    "flight_number": "B6-505",
+    "origin": "NYC",
+    "destination": "LAX",
+    "date": "2026-07-16",
+    "price": 310,
+    "airline": "JetBlue",
+    "departure_time": "10:15",
+    "arrival_time": "13:30"
+  },
+  {
+    "flight_number": "DL-881",
+    "origin": "LAX",
+    "destination": "NYC",
+    "date": "2026-07-20",
+    "price": 390,
+    "airline": "Delta Air Lines",
+    "departure_time": "09:00",
+    "arrival_time": "17:15"
+  },
+  {
+    "flight_number": "AA-404",
+    "origin": "LAX",
+    "destination": "NYC",
+    "date": "2026-07-20",
+    "price": 550,
+    "airline": "American Airlines",
+    "departure_time": "13:00",
+    "arrival_time": "21:15"
+  },
+  {
+    "flight_number": "UA-123",
+    "origin": "ORD",
+    "destination": "LHR",
+    "date": "2026-08-01",
+    "price": 850,
+    "airline": "United Airlines",
+    "departure_time": "18:30",
+    "arrival_time": "08:15"
+  },
+  {
+    "flight_number": "BA-296",
+    "origin": "ORD",
+    "destination": "LHR",
+    "date": "2026-08-01",
+    "price": 1200,
+    "airline": "British Airways",
+    "departure_time": "20:45",
+    "arrival_time": "10:30"
+  },
+  {
+    "flight_number": "VS-040",
+    "origin": "ORD",
+    "destination": "LHR",
+    "date": "2026-08-01",
+    "price": 720,
+    "airline": "Virgin Atlantic",
+    "departure_time": "17:00",
+    "arrival_time": "06:45"
+  },
+  {
+    "flight_number": "FR-4921",
+    "origin": "STN",
+    "destination": "DUB",
+    "date": "2026-06-15",
+    "price": 35,
+    "airline": "Ryanair",
+    "departure_time": "06:30",
+    "arrival_time": "07:45"
+  },
+  {
+    "flight_number": "EI-233",
+    "origin": "LHR",
+    "destination": "DUB",
+    "date": "2026-06-15",
+    "price": 95,
+    "airline": "Aer Lingus",
+    "departure_time": "11:20",
+    "arrival_time": "12:40"
+  }
+]
