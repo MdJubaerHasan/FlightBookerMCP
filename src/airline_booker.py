@@ -1,13 +1,13 @@
 import os
-import psycopg2
 from dotenv import load_dotenv
+load_dotenv()
+os.environ["MCP_PORT"] = os.environ.get("PORT", "8000")
+os.environ["MCP_HOST"] = "0.0.0.0"
+import psycopg2
 import stripe
-import webbrowser
 from mcp.server.fastmcp import FastMCP
 from psycopg2.extras import RealDictCursor
 
-
-load_dotenv()
 
 mcp = FastMCP(
     "AirlineBookingServer",
@@ -102,13 +102,10 @@ def payment_gateway(flight_number: str, price: float | int):
             cancel_url='https://example.com/cancel',
         )
         if session.url:
-            webbrowser.open(session.url)
-            return f"Success: Displaying Stripe checkout screen for {flight_number} at ${price:.2f}."
+            return f"Success: Payment gateway created. Please tell the user to click this secure Stripe Checkout link to complete their booking: {session.url}"
     except Exception as e:
         return f"Stripe Gateway Error: {str(e)}"
 
 
 if __name__ == "__main__":
-    if __name__ == "__main__":
-        port = int(os.environ.get("PORT", 8000))
-        mcp.run(transport="sse", host="0.0.0.0", port=port)
+    mcp.run(transport="sse")
