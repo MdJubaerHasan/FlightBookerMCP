@@ -1,12 +1,16 @@
 import os
-import sqlite3
+
+import psycopg2
+from dotenv import load_dotenv
 import tempfile
 import webbrowser
 from string import Template
 
 from mcp.server.fastmcp import FastMCP
+from psycopg2.extras import RealDictCursor
 from pypdf import PdfReader
 
+load_dotenv()
 
 mcp = FastMCP(
     "AirlineBookingServer",
@@ -23,39 +27,44 @@ mcp = FastMCP(
 
 @mcp.tool(
     name="search_flight_tool",
-    description="Searches the local database for available flights matching strict origin, destination, date, and price constraints."
+    description="Searches the cloud database for available flights matching strict origin, destination, date, and price constraints."
 )
 def search_flight_tool(origin: str, destination: str, date: str, max_price: float | int):
-    """Searches the database for available flights based on user criteria.
+    """Searches the Neon database for available flights based on user criteria.
 
-    Args:
-        origin: The 3-letter departure airport code (e.g., 'JFK', 'LHR').
-        destination: The 3-letter arrival airport code (e.g., 'CDG', 'DXB').
-        date: Departure date formatted as YYYY-MM-DD (e.g., '2026-08-12').
-        max_price: The maximum budget for the ticket price.
+        Args:
+            origin: The 3-letter departure airport code (e.g., 'JFK', 'LHR').
+            destination: The 3-letter arrival airport code (e.g., 'CDG', 'DXB').
+            date: Departure date formatted as YYYY-MM-DD (e.g., '2026-08-12').
+            max_price: The maximum budget for the ticket price.
     """
     origin = origin.upper()
     destination = destination.upper()
 
-    project_dir = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(project_dir, 'flights')
-    conn = sqlite3.connect(db_path)
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        return "Error: DATABASE_URL environment variable is not set on the server"
 
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    try:
 
-    cursor.execute(''' SELECT *
-                       FROM flights
-                       WHERE origin = ?
-                         AND destination = ?
-                         AND date = ?
-                         AND price <= ?''', (origin, destination, date, max_price))
+        conn = psycopg2.connect(database_url)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    rows = cursor.fetchall()
-    flight_list = [dict(row) for row in rows]
-    conn.close()
-    return flight_list
+        cursor.execute(''' SELECT *
+                           FROM  flights
+                           WHERE origin = %s
+                             AND destination = %s
+                             AND date = %s
+                             AND price <= %s''', (origin, destination, date, max_price))
 
+        rows = cursor.fetchall()
+        flight_list = [dict(row) for row in rows]
+        cursor.close()
+        conn.close()
+        return flight_list
+
+    except Exception as e:
+        return f"Database search error: {str(e)}"
 
 @mcp.resource("passport://{file_path}")
 def extract_passport_text(file_path: str):
@@ -72,9 +81,9 @@ def extract_passport_text(file_path: str):
 def payment_gateway(flight_number: str, price: float | int):
     """Tool for the LLM to render the external checkout page template.
 
-    Args:
-        flight_number: Passed by the LLM
-        price: Passed by the LLM
+        Args:
+            flight_number: Passed by the LLM
+            price: Passed by the LLM
     """
     template_path = os.path.join(
         str(os.path.dirname(__file__)), "payment_page.html"
