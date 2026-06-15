@@ -1,13 +1,11 @@
 import os
 from dotenv import load_dotenv
-load_dotenv()
-os.environ["MCP_PORT"] = os.environ.get("PORT", "8000")
-os.environ["MCP_HOST"] = "0.0.0.0"
 import psycopg2
 import stripe
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from psycopg2.extras import RealDictCursor
 
+load_dotenv()
 
 mcp = FastMCP(
     "AirlineBookingServer",
@@ -108,4 +106,5 @@ def payment_gateway(flight_number: str, price: float | int):
 
 
 if __name__ == "__main__":
-    mcp.run(transport="sse")
+    port = int(os.environ.get("PORT", 8000))
+    mcp.run(transport="sse", host="0.0.0.0", port=port)

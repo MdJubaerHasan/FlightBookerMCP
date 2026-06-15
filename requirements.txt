@@ -1,4 +1,4 @@
-mcp[cli]
+fastmcp
 psycopg2-binary
 stripe
 python-dotenv
