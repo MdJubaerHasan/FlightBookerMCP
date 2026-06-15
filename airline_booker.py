@@ -3,10 +3,9 @@ import psycopg2
 from dotenv import load_dotenv
 import stripe
 import webbrowser
-
 from mcp.server.fastmcp import FastMCP
 from psycopg2.extras import RealDictCursor
-from pypdf import PdfReader
+
 
 load_dotenv()
 
@@ -63,13 +62,6 @@ def search_flight_tool(origin: str, destination: str, date: str, max_price: floa
 
     except Exception as e:
         return f"Database search error: {str(e)}"
-
-@mcp.resource("passport://{file_path}")
-def extract_passport_text(file_path: str):
-    """ Extracts the information as text from PDF files"""
-    reader = PdfReader(file_path)
-    page = reader.pages[0]
-    return page.extract_text()
 
 
 @mcp.tool(
