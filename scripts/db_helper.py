@@ -31,7 +31,7 @@ def setup_database():
                    ''')
 
     print("Populating data from flightdata.json...")
-    with open('data/flightdata.json') as f:
+    with open('../data/flightdata.json') as f:
         flights = json.load(f)
 
         for flight in flights:
