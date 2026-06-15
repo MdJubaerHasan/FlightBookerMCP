@@ -1,7 +1,7 @@
 [
   {
     "flight_number": "AA-101",
-    "origin": "NYC",
+    "origin": "JFK",
     "destination": "LAX",
     "date": "2026-07-15",
     "price": 350,
@@ -11,7 +11,7 @@
   },
   {
     "flight_number": "DL-242",
-    "origin": "NYC",
+    "origin": "JFK",
     "destination": "LAX",
     "date": "2026-07-15",
     "price": 420,
@@ -21,7 +21,7 @@
   },
   {
     "flight_number": "UA-789",
-    "origin": "NYC",
+    "origin": "JFK",
     "destination": "LAX",
     "date": "2026-07-15",
     "price": 280,
@@ -31,7 +31,7 @@
   },
   {
     "flight_number": "B6-505",
-    "origin": "NYC",
+    "origin": "LGA",
     "destination": "LAX",
     "date": "2026-07-16",
     "price": 310,
@@ -42,7 +42,7 @@
   {
     "flight_number": "DL-881",
     "origin": "LAX",
-    "destination": "NYC",
+    "destination": "JFK",
     "date": "2026-07-20",
     "price": 390,
     "airline": "Delta Air Lines",
@@ -52,7 +52,7 @@
   {
     "flight_number": "AA-404",
     "origin": "LAX",
-    "destination": "NYC",
+    "destination": "JFK",
     "date": "2026-07-20",
     "price": 550,
     "airline": "American Airlines",
