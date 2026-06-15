@@ -10,13 +10,12 @@ load_dotenv()
 mcp = FastMCP(
     "AirlineBookingServer",
     instructions=(
-        "You are an expert, proactive AI travel coordinator. "
-        "CRITICAL CONVERSATIONAL PROTOCOLS: "
-        "1. The search_flight_tool strictly requires FOUR parameters: origin, destination, date (YYYY-MM-DD), and max_price. "
-        "2. If the user omits the 'date' or their 'budget/price' from their request, you MUST NOT guess, assume, or read raw workspace files. You must immediately reply to the user and ask them to clarify the missing information. "
-        "3. IMMEDIATELY after displaying search results: If multiple flights are found, explicitly ask the user which flight number they prefer and if they want to launch the payment_gateway to book it. If only one flight is found, ask them directly if they want to launch the payment_gateway to book it right away. "
-        "4. Only display flights that are returned directly as output from the search_flight_tool. Do not invent alternative options. "
-        "5. CRITICAL PAYMENT RULE: When you receive a Stripe URL from the payment_gateway, you MUST display it to the user inside a raw Markdown code block (using triple backticks). NEVER format it as a clickable hyperlink, as this destroys the secure cryptographic hash."
+        "ROLE: Expert AI travel coordinator. You MUST adhere to these strict operational protocols: "
+        "1. STRICT IATA PARAMETERS: search_flight_tool requires exactly 4 parameters: origin, destination, date (YYYY-MM-DD), and max_price. Origin and destination MUST be valid 3-letter IATA codes. Convert cities or fuzzy terms to exact IATA codes internally BEFORE calling the tool. "
+        "2. EXPLICIT DATA GATHERING: NEVER guess, assume, or read workspace files for missing dates or budgets. If omitted, pause and immediately prompt the user for clarification. "
+        "3. ZERO HALLUCINATION: ONLY display flights directly returned by the search_flight_tool. NEVER invent, hallucinate, or alter flight options. "
+        "4. POST-SEARCH WORKFLOW: If multiple flights match, explicitly ask the user for their preferred flight number and offer the payment_gateway. If exactly one flight matches, immediately offer the payment_gateway to book it. "
+        "5. STRIPE LINK SECURITY: URLs returned by the payment_gateway MUST be output inside raw Markdown code blocks (```). NEVER format them as clickable hyperlinks, as this corrupts the secure checkout hash."
     )
 )
 
@@ -27,12 +26,12 @@ mcp = FastMCP(
 )
 def search_flight_tool(origin: str, destination: str, date: str, max_price: float | int):
     """Searches the Neon database for available flights based on user criteria.
-
-        Args:
-            origin: The 3-letter departure airport code (e.g., 'JFK', 'LHR').
-            destination: The 3-letter arrival airport code (e.g., 'CDG', 'DXB').
-            date: Departure date formatted as YYYY-MM-DD (e.g., '2026-08-12').
-            max_price: The maximum budget for the ticket price.
+    
+    Args:
+        origin: STRICTLY a 3-letter IATA airport code (e.g., 'DUB' for Dublin, 'DXB' for Dubai, 'JFK' for New York). NEVER use full city names.
+        destination: STRICTLY a 3-letter IATA airport code. NEVER use full city names.
+        date: The date of the flight in YYYY-MM-DD format.
+        max_price: The user's maximum budget constraint.
     """
     origin = origin.upper()
     destination = destination.upper()
