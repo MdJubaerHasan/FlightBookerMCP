@@ -15,7 +15,8 @@ mcp = FastMCP(
         "1. The search_flight_tool strictly requires FOUR parameters: origin, destination, date (YYYY-MM-DD), and max_price. "
         "2. If the user omits the 'date' or their 'budget/price' from their request, you MUST NOT guess, assume, or read raw workspace files. You must immediately reply to the user and ask them to clarify the missing information. "
         "3. IMMEDIATELY after displaying search results: If multiple flights are found, explicitly ask the user which flight number they prefer and if they want to launch the payment_gateway to book it. If only one flight is found, ask them directly if they want to launch the payment_gateway to book it right away. "
-        "4. Only display flights that are returned directly as output from the search_flight_tool. Do not invent alternative options."
+        "4. Only display flights that are returned directly as output from the search_flight_tool. Do not invent alternative options. "
+        "5. CRITICAL PAYMENT RULE: When you receive a Stripe URL from the payment_gateway, you MUST display it to the user inside a raw Markdown code block (using triple backticks). NEVER format it as a clickable hyperlink, as this destroys the secure cryptographic hash."
     )
 )
 
@@ -100,7 +101,11 @@ def payment_gateway(flight_number: str, price: float | int):
             cancel_url='https://example.com/cancel',
         )
         if session.url:
-            return f"Success: Payment gateway created. Please tell the user to click this secure Stripe Checkout link to complete their booking: {session.url}"
+            return (
+                f"Success: Payment gateway created. \n\n"
+                f"CRITICAL LLM INSTRUCTION: You MUST output the URL below exactly as it appears, wrapped in triple backticks. Do NOT make it a clickable link.\n\n"
+                f"```text\n{session.url}\n```"
+            )
     except Exception as e:
         return f"Stripe Gateway Error: {str(e)}"
 
