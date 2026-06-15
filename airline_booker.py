@@ -1,10 +1,8 @@
 import os
-
 import psycopg2
 from dotenv import load_dotenv
-import tempfile
+import stripe
 import webbrowser
-from string import Template
 
 from mcp.server.fastmcp import FastMCP
 from psycopg2.extras import RealDictCursor
@@ -76,43 +74,46 @@ def extract_passport_text(file_path: str):
 
 @mcp.tool(
     name="payment_gateway",
-    description="Launches a secure local mockup browser interface to process client checkout for a specific flight number and price."
+    description="Launches a secure Stripe checkout session to process client payment for a specific flight number."
 )
 def payment_gateway(flight_number: str, price: float | int):
-    """Tool for the LLM to render the external checkout page template.
+    """Generates a Stripe Checkout URL and opens it in the user's browser
 
         Args:
             flight_number: Passed by the LLM
             price: Passed by the LLM
     """
-    template_path = os.path.join(
-        str(os.path.dirname(__file__)), "payment_page.html"
-    )
 
-    if not os.path.exists(template_path):
-        return "Error: payment_page.html template file was not found."
+    stripe_key = os.getenv("STRIPE_SECRET_KEY")
+    if not stripe_key:
+        return "Error: STRIPE_SECRET_KEY environment variable is not set"
 
-    # 1. Read the static HTML file
-    with open(template_path, "r", encoding="utf-8") as file:
-        html_template = file.read()
+    stripe.api_key = stripe_key
 
-    template = Template(html_template)
-    formatted_price = f"{price:.2f}"
-
-    # Note: Double check that your payment_page.html uses exactly $flight_number and $price
-    rendered_html = template.substitute(
-        flight_number=flight_number, price=formatted_price
-    )
-
-    with tempfile.NamedTemporaryFile(
-            "w", delete=False, suffix=".html", encoding="utf-8"
-    ) as temp_file:
-        temp_file.write(rendered_html)
-        temp_file_path = temp_file.name
-
-    webbrowser.open(f"file://{os.path.abspath(temp_file_path)}")
-
-    return f"Success: Displaying payment screen for {flight_number}."
+    try:
+        amount_in_cents = int(float(price) * 100)
+        session = stripe.checkout.Session.create(
+            mode='payment',
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data':{
+                    'currency': 'usd',
+                    'product_data':{
+                        'name': f'Flight Ticket: {flight_number}',
+                        'description': 'Dream Air Secure Checkout',
+                    },
+                    'unit_amount': amount_in_cents,
+                },
+                'quantity': 1,
+            }],
+            success_url='https://example.com/success',
+            cancel_url='https://example.com/cancel',
+        )
+        if session.url:
+            webbrowser.open(session.url)
+            return f"Success: Displaying Stripe checkout screen for {flight_number} at ${price:.2f}."
+    except Exception as e:
+        return f"Stripe Gateway Error: {str(e)}"
 
 
 if __name__ == "__main__":
