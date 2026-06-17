@@ -1,0 +1,50 @@
+ [
+    {
+        "iata_code": "LHR",
+        "country": "United Kingdom",
+        "city": "London",
+        "aliases": "UK, Great Britain, England"
+    },
+    {
+        "iata_code": "JFK",
+        "country": "United States",
+        "city": "New York",
+        "aliases": "US, USA, America"
+    },
+    {
+        "iata_code": "YYZ",
+        "country": "Canada",
+        "city": "Toronto",
+        "aliases": "CA"
+    },
+    {
+        "iata_code": "SYD",
+        "country": "Australia",
+        "city": "Sydney",
+        "aliases": "AU"
+    },
+    {
+        "iata_code": "PEK",
+        "country": "China",
+        "city": "Beijing",
+        "aliases": "CN"
+    },
+    {
+        "iata_code": "JNB",
+        "country": "South Africa",
+        "city": "Johannesburg",
+        "aliases": "SA, ZA"
+    },
+    {
+        "iata_code": "RUH",
+        "country": "Saudi Arabia",
+        "city": "Riyadh",
+        "aliases": "KSA, Saudi"
+    },
+    {
+        "iata_code": "IKA",
+        "country": "Iran",
+        "city": "Tehran",
+        "aliases": "IR"
+    }
+]
