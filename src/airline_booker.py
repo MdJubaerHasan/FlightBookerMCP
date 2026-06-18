@@ -22,41 +22,71 @@ mcp = FastMCP(
 
 @mcp.tool(
     name="search_flight_tool",
-    description="Searches the cloud database for available flights matching strict origin, destination, date, and price constraints."
+    description="Searches the database for flights matching origin, destination, and budget. Accepts countries, cities, or IATA codes."
 )
-def search_flight_tool(origin: str, destination: str, date: str, max_price: float | int):
+def search_flight_tool(
+        origin_query: str,
+        destination_query: str,
+        max_price: float | int,
+        start_date: str | None = None,
+        end_date: str | None = None
+):
     """Searches the Neon database for available flights based on user criteria.
-    
-    Args:
-        origin: STRICTLY a 3-letter IATA airport code (e.g., 'DUB' for Dublin, 'DXB' for Dubai, 'JFK' for New York). NEVER use full city names.
-        destination: STRICTLY a 3-letter IATA airport code. NEVER use full city names.
-        date: The date of the flight in YYYY-MM-DD format.
-        max_price: The user's maximum budget constraint.
-    """
-    origin = origin.upper()
-    destination = destination.upper()
 
+    Args:
+        origin_query: The departure location. Can be a country (e.g. 'Canada'), city ('Toronto'), or IATA code ('YYZ').
+        destination_query: The arrival location. Can be a country, city, or IATA code.
+        max_price: The user's maximum budget constraint.
+        start_date: Optional. The earliest departure date in YYYY-MM-DD format.
+        end_date: Optional. The latest departure date in YYYY-MM-DD format.
+    """
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         return "Error: DATABASE_URL environment variable is not set on the server"
 
     try:
-
         conn = psycopg2.connect(database_url)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-        cursor.execute(''' SELECT *
-                           FROM  flights
-                           WHERE origin = %s
-                             AND destination = %s
-                             AND date = %s
-                             AND price <= %s''', (origin, destination, date, max_price))
+        orig_param = f"%{origin_query}%"
+        dest_param = f"%{destination_query}%"
 
+        query = '''
+                SELECT f.*,
+                       o.country as origin_country, \
+                       o.city    as origin_city,
+                       d.country as dest_country, \
+                       d.city    as dest_city
+                FROM flights f
+                         JOIN airports o ON f.origin = o.iata_code
+                         JOIN airports d ON f.destination = d.iata_code
+                WHERE (o.iata_code ILIKE %s OR o.country ILIKE %s OR o.city ILIKE %s OR o.aliases ILIKE %s)
+                  AND (d.iata_code ILIKE %s OR d.country ILIKE %s OR d.city ILIKE %s OR d.aliases ILIKE %s)
+                  AND f.price <= %s
+                '''
+        params = [
+            orig_param, orig_param, orig_param, orig_param,
+            dest_param, dest_param, dest_param, dest_param,
+            max_price
+        ]
+
+        if start_date:
+            query += " AND f.date >= %s"
+            params.append(start_date)
+
+        if end_date:
+            query += " AND f.date <= %s"
+            params.append(end_date)
+
+        query += " ORDER BY f.date ASC, f.price ASC LIMIT 20"
+
+        cursor.execute(query, tuple(params))
         rows = cursor.fetchall()
-        flight_list = [dict(row) for row in rows]
+
         cursor.close()
         conn.close()
-        return flight_list
+
+        return [dict(row) for row in rows] if rows else "No flights found."
 
     except Exception as e:
         return f"Database search error: {str(e)}"
@@ -86,9 +116,9 @@ def payment_gateway(flight_number: str, price: float | int):
             mode='payment',
             payment_method_types=['card'],
             line_items=[{
-                'price_data':{
+                'price_data': {
                     'currency': 'usd',
-                    'product_data':{
+                    'product_data': {
                         'name': f'Flight Ticket: {flight_number}',
                         'description': 'Dream Air Secure Checkout',
                     },
@@ -110,5 +140,10 @@ def payment_gateway(flight_number: str, price: float | int):
 
 
 if __name__ == "__main__":
+    # Deployment
+
     port = int(os.environ.get("PORT", 8000))
     mcp.run(transport="sse", host="0.0.0.0", port=port)
+
+    # For local testing
+    # mcp.run()
