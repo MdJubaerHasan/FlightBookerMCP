@@ -86,8 +86,8 @@ The FastMCP server exposes the following tools to the LLM agent:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/dream-air-mcp.git
-cd dream-air-mcp
+git clone https://github.com/MdJubaerHasan/FlightBookerMCP.git
+cd FlightBookerMCP
 ```
 
 ### 2. Install dependencies
