@@ -130,11 +130,12 @@ def payment_gateway(flight_number: str, price: float | int):
             cancel_url='https://example.com/cancel',
         )
         if session.url:
-            return (
-                f"Success: Payment gateway created. \n\n"
-                f"CRITICAL LLM INSTRUCTION: You MUST output the URL below exactly as it appears, wrapped in triple backticks. Do NOT make it a clickable link.\n\n"
-                f"```text\n{session.url}\n```"
-            )
+            if session.url:
+                return (
+                    f"Success: Payment gateway created.\n\n"
+                    f"Here is the checkout link:\n\n"
+                    f"```text\n{session.url}\n```"
+                )
     except Exception as e:
         return f"Stripe Gateway Error: {str(e)}"
 
