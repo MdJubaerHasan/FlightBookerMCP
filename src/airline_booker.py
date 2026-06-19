@@ -140,10 +140,5 @@ def payment_gateway(flight_number: str, price: float | int):
 
 
 if __name__ == "__main__":
-    # Deployment
-
     port = int(os.environ.get("PORT", 8000))
     mcp.run(transport="sse", host="0.0.0.0", port=port)
-
-    # For local testing
-    # mcp.run()

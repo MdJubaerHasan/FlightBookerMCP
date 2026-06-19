@@ -143,6 +143,14 @@ To test the MCP server locally using **Cline** (or an equivalent LLM IDE extensi
   }
 }
 ```
+>**Important:** Match the following python block:
+
+```python
+if __name__ == "__main__":
+    #port = int(os.environ.get("PORT", 8000)) ##comment this line
+    #mcp.run(transport="sse", host="0.0.0.0", port=port) ##comment this line
+    mcp.run()
+```
 
 ---
 
